@@ -3,9 +3,15 @@ package main
 import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
+	_ "go.mongodb.org/mongo-driver/bson"
 	"log"
 	"net/http"
 )
+
+type KeyValue struct {
+	Key   string      `json:"key" bson:"key"`
+	Value interface{} `json:"value" bson:"key"`
+}
 
 type WSResponse struct {
 	Success bool   `json:"success"`
@@ -54,6 +60,7 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		app.DataStore.Add(keyValue.Key, keyValue.Value)
+		app.Insert(KeyValue{Key: "test1", Value: "value1"})
 		resp := WSResponse{
 			Success: true,
 			Message: "Key value pair added successfully",

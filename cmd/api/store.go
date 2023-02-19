@@ -1,10 +1,5 @@
 package main
 
-type KeyValue struct {
-	Key   string      `json:"key"`
-	Value interface{} `json:"value"`
-}
-
 type DataStore struct {
 	data map[string]interface{}
 }

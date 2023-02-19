@@ -1,6 +1,13 @@
-version: '3'
+version: '3.8'
 
 services:
+
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - "./mongodata/:/data/db"
 
   monk-service:
     build:
@@ -8,3 +15,5 @@ services:
     restart: always
     ports:
       - "8088:8088"
+    depends_on:
+      - mongodb
