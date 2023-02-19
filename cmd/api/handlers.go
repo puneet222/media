@@ -8,8 +8,8 @@ import (
 )
 
 type WSResponse struct {
-	success bool   `json:"success"`
-	message string `json:"message"`
+	Success bool   `json:"success"`
+	Message string `json:"message"`
 }
 
 func (app *App) GetData(w http.ResponseWriter, r *http.Request) {
@@ -55,8 +55,8 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 		app.DataStore.Add(keyValue.Key, keyValue.Value)
 		resp := WSResponse{
-			success: true,
-			message: "Key value pair added successfully",
+			Success: true,
+			Message: "Key value pair added successfully",
 		}
 		m, err := json.Marshal(resp)
 		if err != nil {

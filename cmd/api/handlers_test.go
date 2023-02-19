@@ -113,10 +113,10 @@ func TestApp_createWebsocket(t *testing.T) {
 	}
 
 	// Check that we got the expected response
-	//if resp.success == false {
-	//	t.Errorf("Expected to find success value to true but got false")
-	//}
-	//if resp.message != "Key value pair added successfully" {
-	//	t.Errorf("Got unexpected response message [%s]", resp.message)
-	//}
+	if resp.Success == false {
+		t.Errorf("Expected to find success value to true but got false")
+	}
+	if resp.Message != "Key value pair added successfully" {
+		t.Errorf("Got unexpected response message [%s]", resp.Message)
+	}
 }
