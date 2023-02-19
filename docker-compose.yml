@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+
+  monk-service:
+    build:
+      dockerfile: media.dockerfile
+    restart: always
+    ports:
+      - "8088:8088"
