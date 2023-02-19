@@ -2,8 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/gorilla/websocket"
+	"log"
 	"net/http"
 )
+
+type WSResponse struct {
+	success bool   `json:"success"`
+	message string `json:"message"`
+}
 
 func (app *App) GetData(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
@@ -47,5 +54,17 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		app.DataStore.Add(keyValue.Key, keyValue.Value)
+		resp := WSResponse{
+			success: true,
+			message: "Key value pair added successfully",
+		}
+		m, err := json.Marshal(resp)
+		if err != nil {
+			log.Println("Error while marshaling json response")
+		}
+		err = conn.WriteMessage(websocket.BinaryMessage, m)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 }
