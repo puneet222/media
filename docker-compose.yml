@@ -17,3 +17,8 @@ services:
       - "8088:8088"
     depends_on:
       - mongodb
+
+networks:
+  default:
+    # Use a custom driver
+    driver: bridge

@@ -6,15 +6,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"net/http"
-	"time"
 )
 
 const webPort = "8088"
-const mongoDBUri = "mongodb://mongodb:27017"
 const dbName = "keyValueDB"
 const collection = "keyValue"
 
@@ -29,7 +25,7 @@ type App struct {
 }
 
 func (app *App) Initialize() {
-	db, err := connectDb(dbName)
+	db, err := app.connectDb(dbName)
 	if err != nil {
 		log.Println("Failed to connect mongodb")
 	}
@@ -62,29 +58,6 @@ func (app *App) UpdateDataStore() {
 	for _, kv := range keyValues {
 		app.DataStore.Add(kv.Key, kv.Value)
 	}
-}
-
-func connectDb(databaseName string) (*mongo.Database, error) {
-	clientOptions := options.Client()
-	clientOptions.ApplyURI(mongoDBUri)
-	var ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.NewClient(clientOptions)
-	if err != nil {
-		return nil, err
-	}
-
-	err = client.Connect(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Println("error while pinging mongodb", err)
-		return nil, err
-	}
-
-	return client.Database(databaseName), nil
 }
 
 func main() {

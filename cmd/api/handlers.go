@@ -67,15 +67,17 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 		}
 		// Add data to in memory datastore
 		app.DataStore.Add(keyValue.Key, keyValue.Value)
+
 		// Add data to persistent storage in a new go routine
-		app.InsertToDB(keyValue)
+		go app.InsertToDB(keyValue)
+
 		resp := WSResponse{
 			Success: true,
 			Message: "Key value pair added successfully",
 		}
 		m, err := json.Marshal(resp)
 		if err != nil {
-			log.Println("Error while marshaling json response")
+			log.Println("Error while marshaling json response", err)
 		}
 		err = conn.WriteMessage(websocket.BinaryMessage, m)
 		if err != nil {
