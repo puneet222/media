@@ -14,36 +14,47 @@ import (
 )
 
 const webPort = "8088"
+const mongoDBUri = "mongodb://mongodb:27017"
+const dbName = "keyValueDB"
+const collection = "keyValue"
 
 type App struct {
-	Router    *mux.Router
-	DataStore *DataStore
-	Upgrader  websocket.Upgrader
-	Database  *mongo.Database
+	Router     *mux.Router
+	DataStore  *DataStore
+	Upgrader   websocket.Upgrader
+	Database   *mongo.Database
+	DbName     string
+	Collection string
 }
 
 func (app *App) Initialize() {
-	db, err := connectDb()
+	db, err := connectDb(dbName)
 	if err != nil {
 		log.Println("Failed to connect mongodb")
 	}
+	log.Println("connected to mongodb")
 
 	app.Router = mux.NewRouter()
 	app.DataStore = &DataStore{data: make(map[string]interface{})}
 	app.Upgrader = websocket.Upgrader{}
 	app.Database = db
+	app.DbName = dbName
+	app.Collection = collection
 
 	app.InitializeRoutes()
 }
 
 func (app *App) Run(addr string) {
 	log.Printf("Webserver is started at port: %s\n", addr)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", addr), app.Router))
+	err := http.ListenAndServe(fmt.Sprintf(":%s", addr), app.Router)
+	if err != nil {
+		log.Fatal("Error while starting webserver", err)
+	}
 }
 
-func connectDb() (*mongo.Database, error) {
+func connectDb(databaseName string) (*mongo.Database, error) {
 	clientOptions := options.Client()
-	clientOptions.ApplyURI("mongodb://mongodb:27017")
+	clientOptions.ApplyURI(mongoDBUri)
 	var ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.NewClient(clientOptions)
 	if err != nil {
@@ -57,13 +68,11 @@ func connectDb() (*mongo.Database, error) {
 
 	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		log.Println("err ping", err)
+		log.Println("error while pinging mongodb", err)
 		return nil, err
 	}
 
-	log.Println("connected to mongodb")
-
-	return client.Database("key_value_store"), nil
+	return client.Database(databaseName), nil
 }
 
 func main() {

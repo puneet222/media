@@ -51,7 +51,12 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error upgrading to WebSocket protocol", http.StatusInternalServerError)
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			log.Fatal("Error while closing websocket connection")
+		}
+	}()
 
 	for {
 		var keyValue KeyValue
@@ -59,8 +64,10 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			break
 		}
+		// Add data to in memory datastore
 		app.DataStore.Add(keyValue.Key, keyValue.Value)
-		app.Insert(KeyValue{Key: "test1", Value: "value1"})
+		// Add data to persistent storage in a new go routine
+		app.InsertToDB(keyValue)
 		resp := WSResponse{
 			Success: true,
 			Message: "Key value pair added successfully",
