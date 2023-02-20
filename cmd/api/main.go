@@ -22,9 +22,10 @@ type App struct {
 	Router     *mux.Router
 	DataStore  *DataStore
 	Upgrader   websocket.Upgrader
-	Database   *mongo.Database
+	DB         *mongo.Database
 	DbName     string
 	Collection string
+	ctx        context.Context
 }
 
 func (app *App) Initialize() {
@@ -37,9 +38,13 @@ func (app *App) Initialize() {
 	app.Router = mux.NewRouter()
 	app.DataStore = &DataStore{data: make(map[string]interface{})}
 	app.Upgrader = websocket.Upgrader{}
-	app.Database = db
+	app.DB = db
 	app.DbName = dbName
 	app.Collection = collection
+	app.ctx = context.Background()
+
+	// update datastore from database
+	app.UpdateDataStore()
 
 	app.InitializeRoutes()
 }
@@ -49,6 +54,13 @@ func (app *App) Run(addr string) {
 	err := http.ListenAndServe(fmt.Sprintf(":%s", addr), app.Router)
 	if err != nil {
 		log.Fatal("Error while starting webserver", err)
+	}
+}
+
+func (app *App) UpdateDataStore() {
+	keyValues := app.GetAllKeyValues()
+	for _, kv := range keyValues {
+		app.DataStore.Add(kv.Key, kv.Value)
 	}
 }
 

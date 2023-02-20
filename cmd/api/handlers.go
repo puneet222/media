@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	_ "go.mongodb.org/mongo-driver/bson"
 	"log"
@@ -9,8 +10,8 @@ import (
 )
 
 type KeyValue struct {
-	Key   string      `json:"key" bson:"key"`
-	Value interface{} `json:"value" bson:"key"`
+	Key   string `json:"key" bson:"key"`
+	Value any    `json:"value" bson:"value"`
 }
 
 type WSResponse struct {
@@ -31,7 +32,7 @@ func (app *App) GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := json.Marshal(KeyValue{Key: key, Value: value})
+	response, err := json.Marshal(KeyValue{Key: key, Value: fmt.Sprint(value)})
 	if err != nil {
 		http.Error(w, "Error serializing response", http.StatusInternalServerError)
 		return
