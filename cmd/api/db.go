@@ -37,6 +37,9 @@ func (app *App) connectDb(databaseName string) (*mongo.Database, error) {
 }
 
 func (app *App) InsertToDB(data KeyValue) {
+	// using mutex to resolve concurrent
+	app.dbMutex.Lock()
+	defer app.dbMutex.Unlock()
 	_, err := app.DB.Collection(app.Collection).InsertOne(app.ctx, data)
 	if err != nil {
 		log.Fatal(err.Error())

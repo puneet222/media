@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"net/http"
+	"sync"
 )
 
 const webPort = "8088"
@@ -22,6 +23,8 @@ type App struct {
 	DbName     string
 	Collection string
 	ctx        context.Context
+	mutex      sync.RWMutex
+	dbMutex    sync.Mutex
 }
 
 func (app *App) Initialize() {

@@ -26,7 +26,10 @@ func (app *App) GetData(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// add read lock to resolve concurrency issues
+	app.mutex.RLock()
 	value, ok := app.DataStore.Get(key)
+	app.mutex.RUnlock()
 	if !ok {
 		http.Error(w, "Key not found", http.StatusNotFound)
 		return
@@ -66,7 +69,10 @@ func (app *App) createWebsocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		// Add data to in memory datastore
+		// added mutex to resolve concurrency
+		app.mutex.Lock()
 		app.DataStore.Add(keyValue.Key, keyValue.Value)
+		app.mutex.Unlock()
 
 		// Add data to persistent storage in a new go routine
 		go app.InsertToDB(keyValue)
