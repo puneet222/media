@@ -3,8 +3,7 @@
 ## How to run the server
 
 ### Prerequisites
-*Docker[https://www.docker.com/products/docker-desktop/] should be installed on the system*
-*docker-compose[https://docs.docker.com/compose/install/other/]*
+*[Docker](https://www.docker.com/products/docker-desktop/) and [docker compose](https://docs.docker.com/compose/install/other/) should be installed on the system*
 
 ### Follow the below steps
 
@@ -48,11 +47,20 @@ http://localhost:8088/ws
 *Response message received from websocket*
 
 ## Handling concurrency
-I'm using go sync.Mutex[https://pkg.go.dev/sync#Mutex] to handle multiple concurrent request to server for saving key value pair.
+To handle multiple concurrent requests to the server for saving key-value pairs, I'm using the [sync.Mutex](https://pkg.go.dev/sync#Mutex) package in Go.
 
-## Handling Server Restart to persist key value pairs
-I'm using mongodb here for persistent storage of key value pairs, we can also use file system as well but just for learning purposes I've used mongo.
+## Persisting Key-Value Pairs Across Server Restarts
+I'm utilizing MongoDB for persistent storage of key-value pairs to ensure they are saved across server restarts.
 
-## Speeding up the saving process of key value pair
-So after saving the key value pair in the in-memory data store I'm firing up a new go routine that will save the same key value pair in mongodb making this process async will enhance the performance.
+## Speeding Up the Key-Value Pair Saving Process
+To improve performance, I'm using a new Go routine to save the same key-value pair in MongoDB asynchronously after saving it in the in-memory data store:
+```
+go app.InsertToDB(keyValue)
+```
 
+### Additional thoughts
+
+- Instead of utilizing an in-memory data store (e.g. a map), we could consider using Redis to store key-value pairs.
+- While I have been occupied with work, I am currently conducting tests on the database (DB) and will ensure the repository is complete by adding the remaining tests.
+- For our assignment, we could also opt to use the file system instead of MongoDB for persistent storage.
+- As for testing the REST API and WebSocket API, I utilized Postman.
